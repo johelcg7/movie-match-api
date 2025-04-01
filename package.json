@@ -2,11 +2,9 @@
   "name": "movie-match-api",
   "version": "1.0.0",
   "description": "\"movie-match-api\"",
-  "main": "movie.js",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "search": "node movie.js",
-    "filter": "node filterMovies.js"
+    "start": "node index.js"
   },
   "author": "Johel Cueva",
   "license": "ISC",
