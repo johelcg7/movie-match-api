@@ -1,6 +1,7 @@
 {
   "name": "movie-match-api",
   "version": "1.0.0",
+  "type": "module",
   "description": "\"movie-match-api\"",
   "main": "index.js",
   "scripts": {
@@ -9,6 +10,8 @@
   "author": "Johel Cueva",
   "license": "ISC",
   "dependencies": {
-    "csv-parser": "^3.2.0"
+    "csv-parser": "^3.2.0",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.9"
   }
 }

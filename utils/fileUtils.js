@@ -1,10 +1,8 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
-function readCSVFile() {
-    const csvFilePath = path.join(__dirname, "..", "data", "movies.csv");
+export function readCSVFile() {
+    const csvFilePath = path.join(path.resolve(), "data", "movies.csv");
     const csvContent = fs.readFileSync(csvFilePath, "utf8");
     return csvContent;
 }
-
-module.exports = { readCSVFile };

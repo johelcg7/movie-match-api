@@ -1,5 +1,5 @@
-const { readCSVFile } = require("../utils/fileUtils");
-const { parseCSVRow } = require("../utils/parseUtils");
+import { readCSVFile } from "../utils/fileUtils.js";
+import { parseCSVRow } from "../utils/parseUtils.js";
 
 function getAllMovies() {
     const csvData = readCSVFile(); // Leer el archivo CSV
@@ -9,6 +9,7 @@ function getAllMovies() {
 
     for (let i = 1; i < lines.length; i++) {
         const values = parseCSVRow(lines[i]);
+        if (values.length !== headers.length) continue; // Ignorar filas mal formateadas
         const movie = {};
         headers.forEach((header, index) => {
             movie[header.trim()] = values[index]?.trim();
@@ -19,16 +20,38 @@ function getAllMovies() {
     return movies;
 }
 
-exports.getAllMovies = getAllMovies;
+export { getAllMovies };
 
-exports.getMoviesByGenre = (genre) => {
+export const getMoviesByCriteria = (criteria) => {
+    const movies = getAllMovies();
+
+    return movies.filter(movie => {
+        let matches = true;
+
+        // Filtrar por nombre parcial
+        if (criteria.name) {
+            matches =
+                matches &&
+                movie.title.toLowerCase().includes(criteria.name.toLowerCase());
+        }
+
+        // Filtrar por año
+        if (criteria.year) {
+            matches = matches && movie.year === criteria.year;
+        }
+
+        return matches;
+    });
+};
+
+export const getMoviesByGenre = (genre) => {
     const movies = getAllMovies();
     return movies.filter(movie =>
         movie.genre && movie.genre.toLowerCase().includes(genre.toLowerCase())
     );
 };
 
-exports.getMovieByIdOrName = (idOrName) => {
+export const getMovieByIdOrName = (idOrName) => {
     const movies = getAllMovies();
     return movies.find(
         movie =>
@@ -37,7 +60,7 @@ exports.getMovieByIdOrName = (idOrName) => {
     );
 };
 
-exports.getMovieStats = () => {
+export const getMovieStats = () => {
     const movies = getAllMovies();
     const stats = {};
 
@@ -51,4 +74,13 @@ exports.getMovieStats = () => {
     });
 
     return stats;
+};
+
+export const getRecommendationsByGenre = (genre, excludeMovieId) => {
+    const movies = getAllMovies();
+    return movies.filter(movie =>
+        movie.genre &&
+        movie.genre.toLowerCase().includes(genre.toLowerCase()) &&
+        movie.id !== excludeMovieId // Excluir la película consultada
+    ).slice(0, 5); // Limitar a 5 recomendaciones
 };

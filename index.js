@@ -1,27 +1,35 @@
-// Importamos los módulos necesarios
-const http = require("http"); // Módulo para crear el servidor HTTP
-const moviesRoutes = require("./routes/moviesRoutes"); // Módulo para manejar las rutas de películas
+import express from "express";
+import moviesRoutes from "./routes/moviesRoutes.js";
+import { errorHandler } from "./utils/errorMiddleware.js";
+import { getAllMovies } from "./services/moviesService.js"; // Importar la función para cargar películas
 
-// Crear el servidor HTTP
-const server = http.createServer((req, res) => {
-    if (req.url.startsWith("/movies")) {
-        moviesRoutes(req, res); // Delegar las rutas de /movies
-    } else if (req.url === "/" && req.method === "GET") {
-        // Ruta de bienvenida
-        res.writeHead(200, { "Content-Type": "text/plain" });
-        res.end("¡Bienvenido a Movie Match API! El servidor está corriendo correctamente.");
-    } else {
-        // Ruta no encontrada
-        res.writeHead(404, { "Content-Type": "text/plain" });
-        res.end("Ruta no encontrada");
-    }
-});
-
-// Puerto en el que escucha el servidor
+const app = express();
 const PORT = 3000;
-server.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+
+// Middleware para manejar JSON
+app.use(express.json());
+
+// Ruta de bienvenida
+app.get("/", (req, res) => {
+    res.send("¡Bienvenido a Movie Match API! El servidor está corriendo correctamente.");
 });
 
-// Exportamos las funciones para pruebas o uso externo
-module.exports = { server };
+// Rutas de películas
+app.use("/movies", moviesRoutes);
+
+// Manejo de rutas no encontradas
+app.use((req, res, next) => {
+    const error = new Error("Ruta no encontrada");
+    error.status = 404;
+    next(error);
+});
+
+// Middleware de manejo de errores
+app.use(errorHandler);
+
+// Iniciar el servidor
+app.listen(PORT, () => {
+    const movies = getAllMovies(); // Cargar todas las películas
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+    console.log(`Se cargaron ${movies.length} películas.`);
+});

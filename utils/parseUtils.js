@@ -1,4 +1,4 @@
-exports.parseCSVRow = (row) => {
+export function parseCSVRow(row) {
     const result = [];
     let current = "";
     let insideQuotes = false;
@@ -21,4 +21,4 @@ exports.parseCSVRow = (row) => {
     }
     result.push(current);
     return result;
-};
+}

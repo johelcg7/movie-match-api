@@ -1,42 +1,76 @@
-const moviesService = require("../services/moviesService");
+import * as moviesService from "../services/moviesService.js";
 
-exports.getAllMovies = (req, res) => {
+export const getAllMovies = (req, res, next) => {
     try {
-        const url = new URL(req.url, `http://${req.headers.host}`);
-        const genre = url.searchParams.get("genre"); // Obtener el parámetro "genre"
-        const movies = genre ? moviesService.getMoviesByGenre(genre) : moviesService.getAllMovies();
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(movies, null, 2));
-    } catch (error) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Error al obtener las películas: " + error.message);
-    }
-};
+        const { genre, name, year } = req.query; // Obtener los parámetros de consulta
 
-exports.getMovieByIdOrName = (req, res) => {
-    try {
-        const idOrName = decodeURIComponent(req.url.split("/movies/")[1]); // Extraer ID o nombre
-        const movie = moviesService.getMovieByIdOrName(idOrName);
-        if (movie) {
-            res.writeHead(200, { "Content-Type": "application/json" });
-            res.end(JSON.stringify(movie, null, 2));
+        let movies;
+
+        if (name || year) {
+            // Buscar por criterios combinados (name y/o year)
+            movies = moviesService.getMoviesByCriteria({ name, year });
+        } else if (genre) {
+            // Filtrar por género
+            movies = moviesService.getMoviesByGenre(genre);
         } else {
-            res.writeHead(404, { "Content-Type": "text/plain" });
-            res.end("Película no encontrada");
+            // Obtener todas las películas
+            movies = moviesService.getAllMovies();
         }
+
+        if (!movies || movies.length === 0) {
+            // Lanzar un error si no se encuentran películas
+            const error = new Error("No se encontraron resultados para la búsqueda.");
+            error.status = 404;
+            throw error;
+        }
+
+        res.status(200).json(movies); // Responder con las películas en formato JSON
     } catch (error) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Error al buscar la película: " + error.message);
+        next(error); // Pasar el error al middleware de manejo de errores
     }
 };
 
-exports.getStats = (req, res) => {
+export const getMovieByIdOrName = (req, res, next) => {
     try {
-        const stats = moviesService.getMovieStats(); // Obtener estadísticas
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify(stats, null, 2));
+        const idOrName = req.params.idOrName; // Extraer ID o nombre de los parámetros
+        if (!idOrName) {
+            const error = new Error("Debe proporcionar un ID o nombre válido.");
+            error.status = 400;
+            throw error;
+        }
+
+        const movie = moviesService.getMovieByIdOrName(idOrName);
+
+        if (!movie) {
+            const error = new Error("No se encontró ninguna película con el ID o nombre proporcionado.");
+            error.status = 404;
+            throw error;
+        }
+
+        // Obtener recomendaciones basadas en el género
+        const recommendations = moviesService.getRecommendationsByGenre(movie.genre, movie.id);
+
+        res.status(200).json({
+            movie,
+            recommendations
+        }); // Responder con la película encontrada y las recomendaciones
     } catch (error) {
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Error al obtener estadísticas: " + error.message);
+        next(error); // Pasar el error al middleware de manejo de errores
+    }
+};
+
+export const getStats = (req, res, next) => {
+    try {
+        const stats = moviesService.getMovieStats();
+
+        if (!stats || Object.keys(stats).length === 0) {
+            const error = new Error("No se encontraron estadísticas.");
+            error.status = 404;
+            throw error;
+        }
+
+        res.status(200).json(stats); // Responder con las estadísticas en formato JSON
+    } catch (error) {
+        next(error); // Pasar el error al middleware de manejo de errores
     }
 };

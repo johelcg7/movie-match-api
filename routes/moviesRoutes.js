@@ -1,14 +1,14 @@
-const moviesController = require("../controllers/moviesController");
+import express from "express";
+import * as moviesController from "../controllers/moviesController.js";
 
-module.exports = (req, res) => {
-    if (req.url === "/movies/stats" && req.method === "GET") {
-        moviesController.getStats(req, res); // Ruta para estadísticas
-    } else if (req.url.startsWith("/movies/") && req.method === "GET") {
-        moviesController.getMovieByIdOrName(req, res); // Ruta para buscar por ID o nombre
-    } else if (req.url.startsWith("/movies") && req.method === "GET") {
-        moviesController.getAllMovies(req, res); // Ruta para obtener todas las películas o filtrarlas
-    } else {
-        res.writeHead(404, { "Content-Type": "text/plain" });
-        res.end("Ruta no encontrada en /movies");
-    }
-};
+const router = express.Router();
+
+// Ruta para obtener todas las películas o filtrarlas por género
+router.get("/", moviesController.getAllMovies);
+// Ruta para obtener una película por ID o nombre
+router.get("/:idOrName", moviesController.getMovieByIdOrName);
+// Ruta para obtener estadísticas de películas
+router.get("/stats", moviesController.getStats);
+
+
+export default router;
