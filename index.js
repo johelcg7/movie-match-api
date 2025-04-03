@@ -27,6 +27,8 @@ app.get("/", (req, res) => {
 
 // Rutas de películas
 app.use("/movies", moviesRoutes);
+app.use("/movies/stats", moviesRoutes); // Ruta para estadísticas de películas
+
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
