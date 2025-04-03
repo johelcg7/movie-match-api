@@ -1,0 +1,32 @@
+openapi: 3.0.0
+info:
+  title: Movie Match API
+  version: 1.0.0
+paths:
+  /movies:
+    get:
+      summary: Obtener todas las películas
+      parameters:
+        - name: genre
+          in: query
+          description: Filtrar por género
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filtrar por nombre parcial
+          required: false
+          schema:
+            type: string
+        - name: year
+          in: query
+          description: Filtrar por año
+          required: false
+          schema:
+            type: string
+      responses:
+        200:
+          description: Lista de películas
+        404:
+          description: No se encontraron resultados
