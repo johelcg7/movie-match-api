@@ -4,6 +4,9 @@
 # Node modules
 node_modules/
 
+# Directories
+HU.md
+
 # Logs
 logs/
 *.log

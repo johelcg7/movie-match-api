@@ -2,13 +2,36 @@ import * as moviesService from "../services/moviesService.js";
 
 export const getAllMovies = (req, res, next) => {
     try {
-        const { genre, name, year } = req.query; // Obtener los parámetros de consulta
+        const { genre, name, year, fromYear, toYear, director } = req.query; // Obtener los parámetros de consulta
+
+        // Validar que los parámetros fromYear y toYear sean números válidos
+        if (fromYear && isNaN(parseInt(fromYear))) {
+            const error = new Error("El parámetro 'fromYear' debe ser un número válido.");
+            error.status = 400;
+            throw error;
+        }
+
+        if (toYear && isNaN(parseInt(toYear))) {
+            const error = new Error("El parámetro 'toYear' debe ser un número válido.");
+            error.status = 400;
+            throw error;
+        }
+
+        // Validar que fromYear no sea mayor que toYear
+        if (fromYear && toYear && parseInt(fromYear) > parseInt(toYear)) {
+            const error = new Error("El parámetro 'fromYear' no puede ser mayor que 'toYear'.");
+            error.status = 400;
+            throw error;
+        }
 
         let movies;
 
-        if (name || year) {
-            // Buscar por criterios combinados (name y/o year)
-            movies = moviesService.getMoviesByCriteria({ name, year });
+        if (director) {
+            // Filtrar por director
+            movies = moviesService.getMoviesByDirector(director);
+        } else if (name || year || fromYear || toYear) {
+            // Buscar por criterios combinados (name, year, fromYear, toYear)
+            movies = moviesService.getMoviesByCriteria({ name, year, fromYear, toYear });
         } else if (genre) {
             // Filtrar por género
             movies = moviesService.getMoviesByGenre(genre);

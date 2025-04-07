@@ -8,3 +8,5 @@ Una API para buscar y filtrar películas.
 2. Instala las dependencias:
    ```bash
    npm install
+
+   

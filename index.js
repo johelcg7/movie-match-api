@@ -5,6 +5,8 @@ import { getAllMovies } from "./services/moviesService.js"; // Importar la funci
 import { logger } from "./middlewares/logger.js"; // Importar el middleware de logging
 import { corsMiddleware } from "./middlewares/cors.js"; // Importar el middleware de CORS
 
+
+
 const app = express();
 const PORT = process.env.PORT || 3000; // Usa el puerto de .env o 3000 por defecto
 
@@ -26,15 +28,19 @@ app.get("/", (req, res) => {
 });
 
 // Rutas de películas
-app.use("/movies", moviesRoutes);
+app.use("/movies", moviesRoutes); // Ruta para obtener todas las películas o filtrarlas por género o director
 app.use("/movies/stats", moviesRoutes); // Ruta para estadísticas de películas
+
+
+// Rutas de favoritos
+app.use("/movies/favorites", moviesRoutes);
 
 
 // Manejo de rutas no encontradas
 app.use((req, res, next) => {
-    const error = new Error("Ruta no encontrada");
-    error.status = 404;
-    next(error);
+    const error = new Error(`Ruta no encontrada: ${req.originalUrl}`);
+    error.status = 404; // Establecer el código de estado HTTP
+    next(error); // Pasar el error al middleware de manejo de errores
 });
 
 // Middleware de manejo de errores

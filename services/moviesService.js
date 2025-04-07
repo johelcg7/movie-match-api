@@ -20,7 +20,7 @@ function getAllMovies() {
     return movies;
 }
 
-export { getAllMovies };
+
 
 export const getMoviesByCriteria = (criteria) => {
     const movies = getAllMovies();
@@ -35,9 +35,17 @@ export const getMoviesByCriteria = (criteria) => {
                 movie.title.toLowerCase().includes(criteria.name.toLowerCase());
         }
 
-        // Filtrar por año
+        // Filtrar por año exacto
         if (criteria.year) {
             matches = matches && movie.year === criteria.year;
+        }
+
+        // Filtrar por rango de años (fromYear y toYear)
+        if (criteria.fromYear) {
+            matches = matches && parseInt(movie.year) >= parseInt(criteria.fromYear);
+        }
+        if (criteria.toYear) {
+            matches = matches && parseInt(movie.year) <= parseInt(criteria.toYear);
         }
 
         return matches;
@@ -62,14 +70,24 @@ export const getMovieByIdOrName = (idOrName) => {
 
 export const getMovieStats = () => {
     const movies = getAllMovies();
-    const stats = {};
+    const stats = {
+        totalMovies: movies.length,
+        genres: {},
+        years: {},
+    };
 
     movies.forEach(movie => {
+        // Contar géneros
         if (movie.genre) {
             const genres = movie.genre.split(",").map(g => g.trim());
             genres.forEach(genre => {
-                stats[genre] = (stats[genre] || 0) + 1;
+                stats.genres[genre] = (stats.genres[genre] || 0) + 1;
             });
+        }
+
+        // Contar películas por año
+        if (movie.year) {
+            stats.years[movie.year] = (stats.years[movie.year] || 0) + 1;
         }
     });
 
@@ -84,3 +102,14 @@ export const getRecommendationsByGenre = (genre, excludeMovieId) => {
         movie.id !== excludeMovieId // Excluir la película consultada
     ).slice(0, 5); // Limitar a 5 recomendaciones
 };
+
+export const getMoviesByDirector = (director) => {
+    const movies = getAllMovies();
+
+    // Filtrar películas por director (ignorando mayúsculas/minúsculas)
+    return movies.filter(movie => {
+        return movie.director && movie.director.toLowerCase().includes(director.toLowerCase());
+    });
+};
+
+export { getAllMovies };
