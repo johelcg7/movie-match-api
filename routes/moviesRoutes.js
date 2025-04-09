@@ -13,7 +13,7 @@ router.get("/stats", moviesController.getStats);
 
 
 // Ruta para marcar una película como favorita
-router.post("/", addFavorite);
+router.post("/favorites", addFavorite);
 // Ruta para obtener la lista de películas favoritas
 router.get("/favorites", getFavorites);
 // Ruta para eliminar una película de favoritos

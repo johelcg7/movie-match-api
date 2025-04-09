@@ -29,11 +29,7 @@ app.get("/", (req, res) => {
 
 // Rutas de películas
 app.use("/movies", moviesRoutes); // Ruta para obtener todas las películas o filtrarlas por género o director
-app.use("/movies/stats", moviesRoutes); // Ruta para estadísticas de películas
 
-
-// Rutas de favoritos
-app.use("/movies/favorites", moviesRoutes);
 
 
 // Manejo de rutas no encontradas
